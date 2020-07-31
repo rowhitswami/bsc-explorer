@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel=icon type="image/x-icon" href="{{ url_for('static', filename='images/favicon.png') }}">
+    <title>Bangalore School Connectivity Explorer</title>
+    {% include 'base.html' %}
+</head>
+
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" width="30" height="30"
+                class="d-inline-block align-top" alt="" loading="lazy">
+            BSC Explorer
+        </a>
+    </nav>
+    <div class="container pt-5">
+        <div class="row">
+            <div class="col-md-12">
+                <div id="base-map" style="width: 100%; height: 600px;"></div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+
+</html>
