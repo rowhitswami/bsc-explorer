@@ -15,7 +15,7 @@ var myStyle = {
     "opacity": 0.1
 };
 
-$.getJSON('static/data/bangalore_json.geojson', function (data) {
+$.getJSON('static/data/bangalore_boundaries.geojson', function (data) {
     L.geoJson(data, { style: myStyle }).addTo(overview_map);
 });
 
