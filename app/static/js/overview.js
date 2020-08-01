@@ -1,9 +1,3 @@
-var BOUNDARIES = 'https://raw.githubusercontent.com/rowhitswami/bsc-explorer/master/app/data/bangalore_boundaries.geojson?token=AD6AJSA4YZLSIT42BDBTMTC7FWAWQ'
-var BUS_STOPS = 'https://raw.githubusercontent.com/rowhitswami/bsc-explorer/master/app/data/bus_stops.geojson?token=AD6AJSDCDSGUDHDB2QQP7S27FWGKM'
-var ROUTES = 'https://raw.githubusercontent.com/rowhitswami/bsc-explorer/master/app/data/routes.json?token=AD6AJSBGLIIC2N6K6IRXJF27FWHJC'
-var SCHOOLS = 'https://raw.githubusercontent.com/rowhitswami/bsc-explorer/master/app/data/schools.json?token=AD6AJSF3P3XKWQACUX6CP2K7FWHLA'
-
-
 var overview_map = L.map('overview-map', {fullscreenControl: true}).setView([12.9716, 77.59465], 10);
 
 L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
@@ -21,7 +15,7 @@ var myStyle = {
     "opacity": 0.1
 };
 
-$.getJSON(BOUNDARIES, function (data) {
+$.getJSON('static/data/bangalore_json.geojson', function (data) {
     L.geoJson(data, { style: myStyle }).addTo(overview_map);
 });
 
@@ -42,7 +36,7 @@ var bus_stop_style = {
     fillOpacity: 0.8
 };
 
-$.getJSON(BUS_STOPS, function (data) {
+$.getJSON('static/data/bus_stops.geojson', function (data) {
     L.geoJson(data.features, {
         pointToLayer: function (feature, latlng) {
             return L.circleMarker(latlng, bus_stop_style);
@@ -69,7 +63,7 @@ function schoolTooltip(feature, layer) {
 }
 
 
-$.getJSON(SCHOOLS, function (data) {
+$.getJSON('static/data/schools.json', function (data) {
     var school_points = Array()
     $.each(data.features, function (index, element) {
         if (element.geometry.coordinates) {
@@ -91,7 +85,7 @@ $.getJSON(SCHOOLS, function (data) {
     })
 })
 
-$.getJSON(ROUTES, function (data) {
+$.getJSON('static/data/routes.json', function (data) {
     var routes = Array()
     $.each(data.features, function (index, element) {
         var route = Array()

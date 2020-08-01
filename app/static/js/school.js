@@ -1,6 +1,3 @@
-var SCHOOLS = 'https://raw.githubusercontent.com/rowhitswami/bsc-explorer/master/app/data/schools.json?token=AD6AJSF3P3XKWQACUX6CP2K7FWHLA'
-
-
 var school_map = L.map('school-map', { fullscreenControl: true }).setView([12.9716, 77.59465], 10);
 
 L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
@@ -18,7 +15,7 @@ var schoolIcon = L.icon({
     iconSize: [25, 25]
 });
 
-$.getJSON(SCHOOLS, function (data) {
+$.getJSON('static/data/schools.json', function (data) {
     var school_points = Array()
     $.each(data.features, function (index, element) {
         if (element.geometry.coordinates) {
