@@ -27,23 +27,25 @@
             </div>
         </div>
     </div>
-    <div class="container pt-5">
-        <div class="row justify-content-between">
-            <div class="col-md-1">
-                <h2 class="text-center" style="margin-top: 200px;">Schools</h2>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h2 class="text-center" style="margin-top: 200px;">Bus Stops</h2>
+                <div id="bus-stop-map" style="width: 100%; height: 400px;"></div>
             </div>
-            <div class="col-md-9">
+            <div class="col-md-6">
+                <h2 class="text-center" style="margin-top: 200px;">Schools</h2>
                 <div id="school-map" style="width: 100%; height: 400px;"></div>
             </div>
         </div>
     </div>
-    <div class="container pt-5">
+    <div class="container pt-5 pb-5">
         <div class="row justify-content-between">
-            <div class="col-md-9">
-                <div id="bus-stop-map" style="width: 100%; height: 400px;"></div>
-            </div>
             <div class="col-md-1">
-                <h2 class="text-center" style="margin-top: 200px;">Bus Stops</h2>
+                <h2 class="text-center" style="margin-top: 200px;">Routes</h2>
+            </div>
+            <div class="col-md-9">
+                <div id="route-map" style="width: 100%; height: 400px;"></div>
             </div>
         </div>
     </div>
@@ -51,6 +53,7 @@
     <script src="https://unpkg.com/leaflet.markercluster@1.3.0/dist/leaflet.markercluster.js"></script>
     <script src="{{ url_for('static', filename='js/school.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bus_stops.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/route.js') }}"></script>
 </body>
 
 </html>
