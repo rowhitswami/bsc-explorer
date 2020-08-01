@@ -37,9 +37,20 @@
             </div>
         </div>
     </div>
+    <div class="container pt-5">
+        <div class="row justify-content-between">
+            <div class="col-md-9">
+                <div id="bus-stop-map" style="width: 100%; height: 400px;"></div>
+            </div>
+            <div class="col-md-1">
+                <h2 class="text-center" style="margin-top: 200px;">Bus Stops</h2>
+            </div>
+        </div>
+    </div>
     <script src="{{ url_for('static', filename='js/overview.js') }}"></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.3.0/dist/leaflet.markercluster.js"></script>
     <script src="{{ url_for('static', filename='js/school.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bus_stops.js') }}"></script>
 </body>
 
 </html>
