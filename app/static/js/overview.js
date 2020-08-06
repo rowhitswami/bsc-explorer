@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
     $('.preloader-wrapper')
         .delay(1700)
         .fadeOut();
-});
+}); 
 
 $(document).ready(function () {
     $('.tooltipped').tooltip();
