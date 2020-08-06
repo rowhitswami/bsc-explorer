@@ -1,17 +1,15 @@
-document.addEventListener("DOMContentLoaded", function(){
-	$('.preloader-background').delay(1700).fadeOut('slow');
-	
-	$('.preloader-wrapper')
-		.delay(1700)
-		.fadeOut();
+document.addEventListener("DOMContentLoaded", function () {
+    $('.preloader-background').delay(1700).fadeOut('slow');
+
+    $('.preloader-wrapper')
+        .delay(1700)
+        .fadeOut();
 });
 
 $(document).ready(function () {
-    $("#loader").animate({
-        top: -200
-    }, 1500);
     $('.tooltipped').tooltip();
 
+    // Load JSON data
     $.loadData = function (URL) {
         var data = $.ajax({
             url: URL,
@@ -22,6 +20,7 @@ $(document).ready(function () {
         return data
     }
 
+    // Filtering schools data
     $.prepareSchoolData = function (data) {
         var schools = new Array()
         $.each(data.features, function (index, element) {
@@ -38,6 +37,7 @@ $(document).ready(function () {
         return schools
     }
 
+    // Filtering routes data
     $.prepareRoutesData = function (data) {
         var routes = new Array()
         $.each(data.features, function (index, element) {
@@ -50,6 +50,7 @@ $(document).ready(function () {
         return routes
     }
 
+    // Storing the data
     var boundsData = $.loadData('static/data/bangalore_boundaries.geojson');
     var busStopsData = $.loadData('static/data/bus_stops.geojson');
     var schoolsData = $.loadData('static/data/schools.json');
@@ -57,11 +58,13 @@ $(document).ready(function () {
     var routesData = $.loadData('static/data/routes.json');
     preparedRoutesData = $.prepareRoutesData(routesData);
 
+    // Initializing base map
     $.initMap = function (id, latlng, zoom) {
         var map = L.map(id, { fullscreenControl: true }).setView(latlng, zoom);
         return map
     }
 
+    // Adding tile layer
     $.addTileLayer = function (map) {
         L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -73,6 +76,7 @@ $(document).ready(function () {
         }).addTo(map);
     }
 
+    // Adding boundaries from geojson data
     $.addBounds = function (map) {
         var boundStyle = {
             "color": "#00eaff",
@@ -82,6 +86,7 @@ $(document).ready(function () {
         L.geoJson(boundsData, { style: boundStyle }).addTo(map);
     }
 
+    // Adding bus stops from geojson data
     $.addBusStops = function (map) {
         var busStopsStyle = {
             radius: 1,
@@ -99,6 +104,7 @@ $(document).ready(function () {
         }).addTo(map);
     }
 
+    // Adding schools from geojson data
     $.addSchools = function (map) {
         var schoolStyle = {
             radius: 1,
@@ -116,6 +122,7 @@ $(document).ready(function () {
         })
     }
 
+    // Adding routes from geojson data
     $.addRoutes = function (map) {
         var path = L.polyline.antPath(preparedRoutesData, {
             "delay": 800,
@@ -133,6 +140,7 @@ $(document).ready(function () {
 
         var legend = L.control({ position: "bottomleft" });
 
+        // Adding legends on overview map
         legend.onAdd = function (map) {
             var div = L.DomUtil.create("div", "legend left-align z-depth-5");
             div.innerHTML += '<i style="background: #00aeff"></i><span>Schools</span><br>';
@@ -148,6 +156,7 @@ $(document).ready(function () {
         legend.addTo(map);
     }
 
+    // Adding clustered bus stops
     $.clusteredBusStops = function (map) {
         var busStopIcon = L.icon({
             iconUrl: 'static/images/bus_stop.png',
@@ -169,6 +178,7 @@ $(document).ready(function () {
         map.addLayer(busStopClusterGroup);
     }
 
+    // Adding clustered schools
     $.clusteredSchools = function (map) {
         var schoolIcon = L.icon({
             iconUrl: 'static/images/school.png',
@@ -210,17 +220,18 @@ $(document).ready(function () {
     $.addTileLayer(routes_map)
     var legend = L.control({ position: "bottomleft" });
 
-        legend.onAdd = function (map) {
-            var div = L.DomUtil.create("div", "legend left-align z-depth-5");
-            div.innerHTML += '<i style="background: #00BD20"></i><span>Schools</span><br>';
-            div.innerHTML += '<i style="background: #FF8700"></i><span>Unreachable Schools</span><br>';
-            div.innerHTML += '<i style="background: #ff0055"></i><span>Bus Stops</span><br>';
-            div.innerHTML += '<i class="icon" style="background-image: url(https://d30y9cdsu7xlg0.cloudfront.net/png/194515-200.png);background-repeat: no-repeat;"></i><span>Bus Route</span><br>';
+    legend.onAdd = function (map) {
+        var div = L.DomUtil.create("div", "legend left-align z-depth-5");
+        div.innerHTML += '<i style="background: #00BD20"></i><span>Schools</span><br>';
+        div.innerHTML += '<i style="background: #FF8700"></i><span>Unreachable Schools</span><br>';
+        div.innerHTML += '<i style="background: #ff0055"></i><span>Bus Stops</span><br>';
+        div.innerHTML += '<i class="icon" style="background-image: url(https://d30y9cdsu7xlg0.cloudfront.net/png/194515-200.png);background-repeat: no-repeat;"></i><span>Bus Route</span><br>';
 
-            return div;
-        };
+        return div;
+    };
     legend.addTo(routes_map);
 
+    // Filtering routes data for dropdown
     $.prepareShowRoutesData = function (data) {
         var routesValues = {}
         $.each(data.features, function (index, feature) {
@@ -229,6 +240,7 @@ $(document).ready(function () {
         return routesValues
     }
 
+    // Filtering routes data for route-map
     $.prepareRouteDetailsData = function (data) {
         var routeDetails = {}
         $.each(data.features, function (index, feature) {
@@ -243,6 +255,7 @@ $(document).ready(function () {
         return routeDetails
     }
 
+    // Getting distance between two geo coordinates using Haversine formula
     $.getDistance = function (origin, destination) {
         // converting to radian
         var lon1 = origin[1] * Math.PI / 180,
@@ -260,6 +273,7 @@ $(document).ready(function () {
         return c * EARTH_RADIUS * 1000;
     }
 
+    // Preparing HTML for route-details card
     $.addRouteDetails = function (route) {
         var routeDetailsHTML = "<div class='card grey darken-4 z-depth-3'>"
         routeDetailsHTML += "<div class='card-content white-text'>"
@@ -278,27 +292,34 @@ $(document).ready(function () {
         return routeDetailsHTML
     }
 
+    // Function to add nearby data points
     $.addNearby = function (data, style, map) {
         $.each(data, function (index, point) {
             L.circleMarker([point[0], point[1]], style).addTo(map).bindPopup(point[2]);
         })
     }
 
+    // Function to update the route details on route-map
     $.updateSchoolReachability = function (route, routes_map, BUS_STOP_RADIUS, ROUTE_RADIUS) {
 
+        // Updating the HTML
         var routeDetailsHTML = $.addRouteDetails(route)
         $('#route-details').html(routeDetailsHTML)
 
+        // Finding bus stops nearby a route
         var nearbyBusStops = []
         $.each(route.coordinates, function (index, routeCoordinates) {
             $.each(busStopsData.features, function (index, busStop) {
                 var distanceBusStopRoute = $.getDistance([routeCoordinates[0], routeCoordinates[1]], [busStop.geometry.coordinates[1], busStop.geometry.coordinates[0]])
-                if (distanceBusStopRoute < 10) {
+
+                // Assuming the distance between a route and a bus stop to be 100 metres.
+                if (distanceBusStopRoute < 100) {
                     nearbyBusStops.push([busStop.geometry.coordinates[1], busStop.geometry.coordinates[0], busStop.properties.name])
                 }
             })
         })
 
+        // Finding schools nearby a bus stop
         var schoolsNearbyBusStop = []
         $.each(nearbyBusStops, function (index, busStop) {
             $.each(preparedSchoolsData, function (index, school) {
@@ -312,6 +333,7 @@ $(document).ready(function () {
             })
         })
 
+        // Finding schools nearby a route
         var schoolsNearbyRoute = []
         $.each(route.coordinates, function (index, routeCoordinates) {
             $.each(preparedSchoolsData, function (index, school) {
@@ -325,15 +347,17 @@ $(document).ready(function () {
             })
         })
 
+        // Finding the unreachable schools (difference of schools nearby route and schools nearby a bus stops)
         var unreachableSchools = _.differenceWith(schoolsNearbyRoute, schoolsNearbyBusStop, _.isEqual)
 
+        // Drawing the route
         var path = L.polyline.antPath(route.coordinates, {
             "delay": 300,
             "dashArray": [
                 20,
                 20
             ],
-            "weight": 4 ,
+            "weight": 4,
             "color": "#00ff95",
             "pulseColor": "#000000",
             "paused": false,
@@ -341,6 +365,7 @@ $(document).ready(function () {
             "hardwareAccelerated": true
         });
 
+        // Removing all layers from the map
         routes_map.eachLayer(function (layer) {
             routes_map.removeLayer(layer);
         });
@@ -375,6 +400,8 @@ $(document).ready(function () {
         $.addTileLayer(routes_map)
         routes_map.addLayer(path);
         routes_map.fitBounds(path.getBounds())
+
+        // Drawing each data points on route-map
         $.addNearby(schoolsNearbyBusStop, schoolsNearbyBusStopStyle, routes_map)
         $.addNearby(nearbyBusStops, nearbyBuStopsStyle, routes_map)
         $.addNearby(unreachableSchools, unreachableSchoolsStyle, routes_map)
@@ -383,29 +410,38 @@ $(document).ready(function () {
 
     var routeDetailsData = $.prepareRouteDetailsData(routesData)
     var route;
+
+    // Initializing the autocomplete on routes id
     var instances = M.Autocomplete.init($('.autocomplete'), {
         data: $.prepareShowRoutesData(routesData),
         minLength: 0,
         onAutocomplete: function (id) {
             route = routeDetailsData[id]
+
+            // Getting tghe bus stop radius and route radius from view
             var BUS_STOP_RADIUS = $('#bus-stop-radius').val()
             var ROUTE_RADIUS = $('#route-radius').val()
+
+            // Updating the map on each valid autocomplete
             $.updateSchoolReachability(route, routes_map, BUS_STOP_RADIUS, ROUTE_RADIUS)
         }
     });
 
+    // Clearing the input in autocomplete if it doesn't match any
     $('#autocomplete-input').on('keyup', function () {
         if (instances[0].count === 0) {
             $('#autocomplete-input').val('');
         }
     });
 
+    // Updating the map on changing the route radius from view
     $('#route-radius').on('change', function () {
         var BUS_STOP_RADIUS = $('#bus-stop-radius').val()
         var ROUTE_RADIUS = this.value
         $.updateSchoolReachability(route, routes_map, BUS_STOP_RADIUS, ROUTE_RADIUS)
     });
 
+    // Updating the map on changing the bus stop radius from view
     $('#bus-stop-radius').on('change', function () {
         var BUS_STOP_RADIUS = this.value
         var ROUTE_RADIUS = $('#route-radius').val()
