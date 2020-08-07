@@ -222,7 +222,7 @@ $(document).ready(function () {
 
     legend.onAdd = function (map) {
         var div = L.DomUtil.create("div", "legend left-align z-depth-5");
-        div.innerHTML += '<i style="background: #00BD20"></i><span>Schools</span><br>';
+        div.innerHTML += '<i style="background: #00BD20"></i><span>Reachable Schools</span><br>';
         div.innerHTML += '<i style="background: #FF8700"></i><span>Unreachable Schools</span><br>';
         div.innerHTML += '<i style="background: #ff0055"></i><span>Bus Stops</span><br>';
         div.innerHTML += '<i class="icon" style="background-image: url(https://d30y9cdsu7xlg0.cloudfront.net/png/194515-200.png);background-repeat: no-repeat;"></i><span>Bus Route</span><br>';
