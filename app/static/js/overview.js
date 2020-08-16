@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
     $('.preloader-wrapper')
         .delay(1700)
         .fadeOut();
-}); 
+});
 
 $(document).ready(function () {
     $('.tooltipped').tooltip();
@@ -169,9 +169,8 @@ $(document).ready(function () {
         });
 
         $.each(busStopsData.features, function (index, point) {
-            var tooltip = "<b>Name: </b>" + point.properties.name
             var marker = L.marker(new L.LatLng(point.properties.lat, point.properties.lon), { icon: busStopIcon });
-            marker.bindPopup(tooltip);
+            marker.bindPopup(point.properties.name);
             busStopClusterGroup.addLayer(marker);
         })
 
@@ -412,7 +411,7 @@ $(document).ready(function () {
     var route;
 
     // Initializing the autocomplete on routes id
-    var instances = M.Autocomplete.init($('.autocomplete'), {
+    var routeInstances = M.Autocomplete.init($('.autocomplete-routes'), {
         data: $.prepareShowRoutesData(routesData),
         minLength: 0,
         onAutocomplete: function (id) {
@@ -429,7 +428,7 @@ $(document).ready(function () {
 
     // Clearing the input in autocomplete if it doesn't match any
     $('#autocomplete-input').on('keyup', function () {
-        if (instances[0].count === 0) {
+        if (routeInstances[0].count === 0) {
             $('#autocomplete-input').val('');
         }
     });
@@ -446,6 +445,168 @@ $(document).ready(function () {
         var BUS_STOP_RADIUS = this.value
         var ROUTE_RADIUS = $('#route-radius').val()
         $.updateSchoolReachability(route, routes_map, BUS_STOP_RADIUS, ROUTE_RADIUS)
+    });
+
+
+    var school_detail_map = $.initMap('school-detail-map', [12.9716, 77.59465], 11)
+
+    $.addTileLayer(school_detail_map)
+
+
+    // Filtering routes data for dropdown
+    $.prepareShowSchoolsData = function (data) {
+        var schoolsValues = {}
+        $.each(data.features, function (index, feature) {
+            if (feature.geometry.coordinates) {
+                schoolsValues[feature.properties.name] = null
+            }
+        })
+        return schoolsValues
+    }
+
+    // Filtering routes data for route-map
+    $.prepareSchoolDetailsData = function (data) {
+        var schoolDetails = {}
+        $.each(data.features, function (index, feature) {
+            reversedCoordinates = new Array()
+            if (feature.geometry.coordinates) {
+                $.each(feature.geometry.coordinates, function (index, coordinate) {
+                    reversedCoordinates.push(coordinate)
+                })
+                feature.properties.coordinates = reversedCoordinates
+                schoolDetails[feature.properties.name] = feature.properties
+            }
+        })
+        return schoolDetails
+    }
+
+
+    // Preparing HTML for route-details card
+    $.addSchoolDetails = function (school, num_of_bus_stops, radius) {
+        var schoolDetailsHTML = "<div class='card grey darken-4 z-depth-3'>"
+        schoolDetailsHTML += "<div class='card-content white-text'>"
+        schoolDetailsHTML += "<h5>There are " + num_of_bus_stops + " bus stop/s in the radius of " + radius + " m.</h5><br>"
+        schoolDetailsHTML += "<span class='card-title'>School Details</span>"
+        schoolDetailsHTML += "<p><b>Name: </b>" + school.name + "</p>"
+        schoolDetailsHTML += "<p><b>Address: </b>" + school.address_full + "</p>"
+        schoolDetailsHTML += "<p><b>Type: </b>" + school.type.name + "</p>"
+        schoolDetailsHTML += "</span></div></div>"
+        return schoolDetailsHTML
+    }
+
+    // Function to update the route details on route-map
+    $.updateSchoolInformation = function (school, school_detail_map, SCHOOL_RADIUS) {
+        var schoolIcon = L.icon({
+            iconUrl: 'static/images/school.png',
+            iconSize: [35, 35]
+        });
+
+        var busStopIcon = L.icon({
+            iconUrl: 'static/images/bus_stop.png',
+            iconSize: [20, 20]
+        });
+
+        // Finding bus stops nearby a route
+        var nearbyBusStops = []
+        $.each(busStopsData.features, function (index, busStop) {
+            var distanceBusStopRoute = $.getDistance([school.coordinates[1], school.coordinates[0]], [busStop.geometry.coordinates[1], busStop.geometry.coordinates[0]])
+
+            // Assuming the distance between a route and a bus stop to be 100 metres.
+            if (distanceBusStopRoute < SCHOOL_RADIUS) {
+                nearbyBusStops.push([busStop.geometry.coordinates[1], busStop.geometry.coordinates[0], busStop.properties.name])
+            }
+        })
+
+        // Finding routes nearby a bus stop
+        if (nearbyBusStops) {
+            var nearbyRoutes = []
+            $.each(nearbyBusStops, function (index, busStop) {
+                $.each(preparedRoutesData, function (index, routes) {
+                    $.each(routes, function (index, route) {
+                        var distanceBusStopRoute = $.getDistance([busStop[0], busStop[1]], [route[0], route[1]])
+                        // Assuming the distance between a route and a bus stop to be 100 metres.
+                        if (distanceBusStopRoute < 100) {
+                            nearbyRoutes.push(routes)
+                            return;
+                        }
+                    })
+                })
+            })
+        }
+
+        var routes = L.polyline.antPath(nearbyRoutes, {
+            "delay": 800,
+            "dashArray": [
+                20,
+                100
+            ],
+            "weight": 1,
+            "color": "#00ff95",
+            "pulseColor": "#000000",
+            "paused": false,
+            "reverse": false,
+            "hardwareAccelerated": true
+        });
+
+        var schoolDetailsHTML = $.addSchoolDetails(school, nearbyBusStops.length, SCHOOL_RADIUS)
+        $('#school-details').html(schoolDetailsHTML)
+
+        // Removing all layers from the map
+        school_detail_map.eachLayer(function (layer) {
+            school_detail_map.removeLayer(layer);
+        });
+
+        $.addTileLayer(school_detail_map)
+        var marker = L.marker(new L.LatLng(school.coordinates[1], school.coordinates[0]), { icon: schoolIcon });
+        school_detail_map.addLayer(marker);
+        $.each(nearbyBusStops, function (index, point) {
+            var marker = L.marker(new L.LatLng(point[0], point[1]), { icon: busStopIcon });
+            marker.bindPopup(point[2]);
+            school_detail_map.addLayer(marker);
+        })
+        school_detail_map.addLayer(routes);
+
+        // Adding bounds
+        route_bounds = []
+        $.each(nearbyRoutes, function (index, route) {
+            route_bounds.push(route[route.length - 1])
+        })
+
+        var all_bounds = [[school.coordinates[1], school.coordinates[0]]].concat(route_bounds);
+
+        var bounds = L.latLngBounds(all_bounds);
+        school_detail_map.fitBounds(bounds)
+
+    }
+
+
+    var schoolDetailsData = $.prepareSchoolDetailsData(schoolsData)
+    var school;
+
+    // Initializing the autocomplete on routes id
+    var schoolInstances = M.Autocomplete.init($('.autocomplete-schools'), {
+        data: $.prepareShowSchoolsData(schoolsData),
+        minLength: 0,
+        onAutocomplete: function (name) {
+            school = schoolDetailsData[name]
+            var SCHOOL_RADIUS = $('#school-radius').val()
+
+            // Updating the map on each valid autocomplete
+            $.updateSchoolInformation(school, school_detail_map, SCHOOL_RADIUS)
+        }
+    });
+
+    // Clearing the input in autocomplete if it doesn't match any
+    $('#autocomplete-input-schools').on('keyup', function () {
+        if (schoolInstances[0].count === 0) {
+            $('#autocomplete-input-schools').val('');
+        }
+    });
+
+    // Updating the map on changing the bus stop radius from view
+    $('#school-radius').on('change', function () {
+        var SCHOOL_RADIUS = this.value
+        $.updateSchoolInformation(school, school_detail_map, SCHOOL_RADIUS)
     });
 
 })

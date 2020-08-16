@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    
+
     <title>Bangalore School Connectivity Explorer</title>
     {% include 'header.html' %}
 </head>
@@ -40,6 +40,34 @@
             </div>
         </div>
     </div>
+
+    <div class="container-fluid">
+        <div class="row center-align">
+            <h4>School Reachability</h4>
+            <h6 class="pb-10">See the number of bus stops nearby a school and its reachability across the Bangalore city.</h6>
+            <div class="col s12 m4 left-align">
+                <p>Radius of bus stops (in metre) <a class="btn btn-floating tooltipped btn-small grey lighten-1"
+                        data-position="top"
+                        data-tooltip="Set a radius to see the nearby bus stops">?</a></p>
+                <div class="input-field left-align">
+                    <input type="range" id="school-radius" min="100" max="2000" step="100" value="1000" />
+                </div>
+
+                <div class="input-field">
+                    <input type="text" id="autocomplete-input-schools" class="autocomplete-schools">
+                    <label for="autocomplete-input-schools">Select a school</label>
+                </div>
+                <div id="school-details" class="left-align">
+                    <p style="color: #757575">Select a school to see the details</p>
+                </div>
+
+            </div>
+            <div class="col s12 m8 center-align">
+                <div id="school-detail-map" style="width: 100%; height: 600px;"></div>
+            </div>
+        </div>
+    </div>
+
     <div class="container-fluid">
         <div class="row center-align">
             <h4>Bus Routes</h4>
@@ -58,7 +86,7 @@
                 </div>
 
                 <div class="input-field">
-                    <input type="text" id="autocomplete-input" class="autocomplete">
+                    <input type="text" id="autocomplete-input" class="autocomplete-routes">
                     <label for="autocomplete-input">Select a route</label>
                 </div>
                 <div id="route-details" class="left-align">
