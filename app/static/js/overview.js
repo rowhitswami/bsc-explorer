@@ -50,6 +50,17 @@ $(document).ready(function () {
         return routes
     }
 
+    $.routesDataTable = function (data) {
+        var routes = {}
+
+        $.each(data.features, function (index, element) {
+            element.properties['route_coordinates'] = element.geometry.coordinates
+            routes[element.properties.route] = element.properties
+        });
+
+        return routes
+    }
+
     // Storing the data
     var boundsData = $.loadData('static/data/bangalore_boundaries.geojson');
     var busStopsData = $.loadData('static/data/bus_stops.geojson');
@@ -57,6 +68,7 @@ $(document).ready(function () {
     preparedSchoolsData = $.prepareSchoolData(schoolsData);
     var routesData = $.loadData('static/data/routes.json');
     preparedRoutesData = $.prepareRoutesData(routesData);
+    var tableRouteData = $.routesDataTable(routesData)
 
     // Initializing base map
     $.initMap = function (id, latlng, zoom) {
@@ -494,6 +506,23 @@ $(document).ready(function () {
         return schoolDetailsHTML
     }
 
+    //Updating table
+    $.updatingRouteTable = function (data) {
+        var routeTableHTML = "<tr><td>"+ data.route +"</td>"
+        routeTableHTML += "<td>" + data.origin + "</td>"
+        routeTableHTML += "<td>" + data.destination + "</td>"
+        routeTableHTML += "<td>" + data.first_arrival + "</td>"
+        routeTableHTML += "<td>" + data.last_arrival + "</td>"
+        routeTableHTML += "<td>" + data.first_departure + "</td>"
+        routeTableHTML += "<td>" + data.last_departure + "</td>"
+        routeTableHTML += "<td>" + data.distance + "</td>"
+        routeTableHTML += "<td>" + data.duration * 60 + "</td>"
+        routeTableHTML += "<td>" + data.speed.toFixed(2) + "</td>"
+        routeTableHTML += "<td>" + data.trips + "</td></tr>"
+
+        $("#route-table").append(routeTableHTML)
+    }
+
     // Function to update the route details on route-map
     $.updateSchoolInformation = function (school, school_detail_map, SCHOOL_RADIUS) {
         var schoolIcon = L.icon({
@@ -519,14 +548,21 @@ $(document).ready(function () {
 
         // Finding routes nearby a bus stop
         if (nearbyBusStops) {
+            $('#route-table').empty()
             var nearbyRoutes = []
             $.each(nearbyBusStops, function (index, busStop) {
-                $.each(preparedRoutesData, function (index, routes) {
-                    $.each(routes, function (index, route) {
+                $.each(tableRouteData, function (route_name, routes) {
+                    // console.log(routes)
+                    var cords = routes.route_coordinates
+                    // console.log(routes.coordinates)
+                    $.each(cords, function (index, route) {
+                        
                         var distanceBusStopRoute = $.getDistance([busStop[0], busStop[1]], [route[0], route[1]])
                         // Assuming the distance between a route and a bus stop to be 100 metres.
+                        // console.log(distanceBusStopRoute)
                         if (distanceBusStopRoute < 100) {
-                            nearbyRoutes.push(routes)
+                            nearbyRoutes.push(cords)
+                            $.updatingRouteTable(tableRouteData[route_name])
                             return;
                         }
                     })
@@ -564,7 +600,7 @@ $(document).ready(function () {
             marker.bindPopup(point[2]);
             school_detail_map.addLayer(marker);
         })
-        school_detail_map.addLayer(routes);
+        school_detail_map.addLayer(routes)
 
         // Adding bounds
         route_bounds = []
